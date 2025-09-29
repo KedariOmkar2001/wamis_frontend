@@ -1,0 +1,16 @@
+<div class="flex-col p-3 border rounded m-5">
+
+  <div class="flex-col mb-3" *ngFor="let module of modules">
+    <!-- Parent -->
+    <p class="bg-blue-400 text-white p-2 font-semibold">{{ module.title }}</p>
+
+    <!-- Children -->
+    <div class="flex flex-col lg:flex-row gap-3 m-1 mt-2" *ngFor="let child of module.children">
+      <a class="p-2 font-sans border w-full lg:w-1/6 hover:bg-blue-600 hover:text-white transition-all"
+         [routerLink]="child.link">
+        {{ child.title }}
+      </a>
+    </div>
+  </div>
+
+</div>
