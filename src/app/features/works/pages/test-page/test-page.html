@@ -1,0 +1,26 @@
+
+
+<div class="documents-container">
+  <h1>📁 Documents</h1>
+
+  <div *ngIf="documentFolders.length === 0" class="loading">
+    <p>Loading documents...</p>
+  </div>
+
+  <div *ngFor="let folder of documentFolders" class="folder-section">
+    <h2 (click)="toggleFolder(folder.folder)" class="folder-name">
+      ▶ {{ folder.folder | titlecase }}
+    </h2>
+
+    <ul *ngIf="expandedFolder === folder.folder" class="file-list">
+      <li *ngFor="let file of folder.files" class="file-item">
+        <span class="file-name" (click)="viewFile(file)">
+          📄 {{ file.displayName }}
+        </span>
+        <button (click)="downloadFile(file)" class="download-btn">
+          ⬇️
+        </button>
+      </li>
+    </ul>
+  </div>
+</div>
