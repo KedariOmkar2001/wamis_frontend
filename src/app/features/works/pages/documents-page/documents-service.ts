@@ -5,9 +5,7 @@ import { Observable } from 'rxjs';
 export interface DocumentFile {
   fileName: string;
   displayName: string;
-  urlPath: string;
-  isActivated:boolean;
-  fileModule:string;
+  url: string;
 }
 
 export interface DocumentFolder {
@@ -18,9 +16,8 @@ export interface DocumentFolder {
 @Injectable({
   providedIn: 'root'
 })
-export class TestService {
-  // Include the full URL with protocol
-  private baseUrl = 'http://localhost:8080/api/documentsdb';
+export class DocumentService {
+  private baseUrl = 'http://localhost:8080/api/documents';
 
   constructor(private http: HttpClient) {}
 
@@ -30,7 +27,6 @@ export class TestService {
     return this.http.get<DocumentFolder[]>(this.baseUrl);
   }
 
-  // Trigger file download
   downloadFile(folder: string, fileName: string): void {
     // base url for backend
     const url = `http://localhost:8080/api/documents/${folder}/${fileName}`;
@@ -48,4 +44,5 @@ export class TestService {
       error: (err) => console.error('Error downloading file', err)
     });
   }
+
 }

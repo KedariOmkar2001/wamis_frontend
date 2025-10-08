@@ -43,10 +43,14 @@ export class WorkTypePage implements OnInit, AfterViewInit {
   // reactive form for edit
   editForm!: FormGroup;
 
+  // reactive form for insert (add new)
+  insertForm!: FormGroup;
+
   constructor(private fb: FormBuilder, private svc: WorkTypeService) {}
 
   ngOnInit() {
-    this.initForm();
+    this.initEditForm();
+    this.initInsertForm();
     this.loadData();
   }
 
@@ -54,9 +58,17 @@ export class WorkTypePage implements OnInit, AfterViewInit {
     this.dataSource.paginator = this.paginator;
   }
 
-  initForm() {
+  initEditForm() {
     this.editForm = this.fb.group({
       position: [{ value: null, disabled: true }],
+      workType: ['', Validators.required],
+      workTypeCode: ['', Validators.required],
+      isImportant: [false]
+    });
+  }
+
+  initInsertForm() {
+    this.insertForm = this.fb.group({
       workType: ['', Validators.required],
       workTypeCode: ['', Validators.required],
       isImportant: [false]
@@ -125,5 +137,31 @@ export class WorkTypePage implements OnInit, AfterViewInit {
     this.svc.deleteWorkType(this.selectedRow.position);
     this.loadData();
     this.closeDeleteModal();
+  }
+
+  // ---------- INSERT (ADD NEW) ----------
+  saveInsert() {
+    if (this.insertForm.invalid) {
+      this.insertForm.markAllAsTouched();
+      return;
+    }
+
+    const nextPosition = this.svc.getNextPosition();
+
+    const newEntry: TableData = {
+      position: nextPosition,
+      workType: this.insertForm.get('workType')!.value,
+      workTypeCode: this.insertForm.get('workTypeCode')!.value,
+      isImportant: this.insertForm.get('isImportant')!.value,
+    };
+
+    // add via service (replace with HTTP call if needed)
+    this.svc.addWorkType(newEntry);
+    this.loadData();
+    this.insertForm.reset({ workType: '', workTypeCode: '', isImportant: false });
+  }
+
+  cancelInsert() {
+    this.insertForm.reset({ workType: '', workTypeCode: '', isImportant: false });
   }
 }

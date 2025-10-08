@@ -1,7 +1,5 @@
-
-
 <div class="documents-container">
-  <h1>📁 Documents</h1>
+  <h1 class="title-header">📁 Documents</h1>
 
   <div *ngIf="documentFolders.length === 0" class="loading">
     <p>Loading documents...</p>
@@ -9,17 +7,28 @@
 
   <div *ngFor="let folder of documentFolders" class="folder-section">
     <h2 (click)="toggleFolder(folder.folder)" class="folder-name">
-      ▶ {{ folder.folder | titlecase }}
+      {{ expandedFolder === folder.folder ? '▼' : '▶' }} {{ folder.folder | titlecase }}
     </h2>
 
     <ul *ngIf="expandedFolder === folder.folder" class="file-list">
       <li *ngFor="let file of folder.files" class="file-item">
-        <span class="file-name" (click)="viewFile(file)">
+        <span class="file-name">
           📄 {{ file.displayName }}
         </span>
-        <button (click)="downloadFile(file)" class="download-btn">
-          ⬇️
-        </button>
+
+
+        <div class="flex-container">
+
+          <span class="file-isactivated">
+          <span *ngIf="file.isActivated" class="active-txt">Active</span>
+          <span *ngIf="!file.isActivated" class="deactive-txt">De-Active</span>
+        </span>
+
+          <button *ngIf="file.isActivated" (click)="downloadFile(file, folder.folder)" class="download-btn">⬇️</button>
+
+        </div>
+
+
       </li>
     </ul>
   </div>

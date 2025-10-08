@@ -1,0 +1,29 @@
+
+
+<div class="flex gap-2 p-3 bg-red-200">
+  <a class="hover:underline transition-all" routerLink="">Home</a><span class="ml-2 mr-2">/</span>
+  <a class="hover:underline transition-all" routerLink="document">Documents</a>
+</div>
+
+<div class="documents-container">
+  <h1>Documents</h1>
+
+  <div *ngIf="documentFolders.length === 0" class="loading">
+    <p>Loading documents...</p>
+  </div>
+
+  <div *ngFor="let folder of documentFolders" class="folder-section">
+    <div class="folder-name">
+      {{ folder.folder | titlecase }}
+    </div>
+
+    <ul class="file-list">
+      <li *ngFor="let file of folder.files" class="file-item">
+        <span class="file-name" (click)="viewFile(file)">
+          {{ file.displayName }}
+        </span>
+        <button (click)="downloadFile(file, folder.folder)" class="download-btn">⬇️</button>
+      </li>
+    </ul>
+  </div>
+</div>

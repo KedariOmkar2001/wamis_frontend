@@ -44,7 +44,7 @@
 }
 
 .file-name:hover {
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 .download-btn {
@@ -58,4 +58,30 @@
 
 .download-btn:hover {
   background: #005b9f;
+}
+
+.title-header{
+  margin-bottom:20px;
+  font-size: 20px;
+}
+
+.active-txt{
+  color: green;
+}
+
+.deactive-txt{
+  color: darkred;
+}
+
+.file-isactivated{
+  text-align: end;
+}
+
+.flex-container{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-around;
+  align-items: center;
+  gap:10px;
 }

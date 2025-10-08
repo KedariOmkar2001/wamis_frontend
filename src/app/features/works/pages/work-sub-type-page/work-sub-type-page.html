@@ -1,0 +1,293 @@
+
+<!-- header + breadcrumbs -->
+<app-header></app-header>
+<app-logged-in-user></app-logged-in-user>
+
+<div class="flex gap-2 p-3 bg-red-200">
+  <a class="hover:underline transition-all" routerLink="">Home</a><span class="ml-2 mr-2">/</span>
+  <a class="hover:underline transition-all" routerLink="/works">Works</a><span class="ml-2 mr-2">/</span>
+  <a class="hover:underline transition-all" routerLink="/work-sub-type">Work Sub Type</a>
+</div>
+
+<!-- Loading Overlay -->
+<div *ngIf="isLoading" class="fixed inset-0 bg-black/30 z-50 flex items-center justify-center">
+  <div class="bg-white p-4 rounded-lg shadow-lg">
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+    <p class="mt-2 text-sm text-gray-600">Loading...</p>
+  </div>
+</div>
+
+<!-- Filter Section -->
+<div class="m-2 p-4 bg-white border rounded shadow-sm">
+  <h3 class="text-md font-semibold mb-3">Filter by Work Type</h3>
+  <div class="flex gap-3 items-center">
+    <mat-form-field appearance="outline" class="flex-1">
+      <mat-label>Select Work Type</mat-label>
+      <mat-select [(ngModel)]="selectedWorkTypeFilter" (selectionChange)="applyWorkTypeFilter()">
+        <mat-option [value]="null">All Work Types</mat-option>
+        <mat-option *ngFor="let wt of workTypes" [value]="wt.id">
+          {{ wt.workType }} ({{ wt.workTypeCode }})
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <button
+      mat-raised-button
+      color="accent"
+      (click)="clearFilter()"
+      [disabled]="selectedWorkTypeFilter === null"
+      class="mt-[-8px]">
+      Clear Filter
+    </button>
+  </div>
+</div>
+
+<!-- table -->
+<div class="mat-elevation-z8 border rounded m-2 p-2 bg-white">
+  <table mat-table [dataSource]="dataSource" class="min-w-full">
+
+    <!-- Work Sub Type ID Column -->
+    <ng-container matColumnDef="workSubTypeId">
+      <th mat-header-cell *matHeaderCellDef class="text-left py-2 px-3 font-semibold">ID</th>
+      <td mat-cell *matCellDef="let element" class="py-2 px-3">{{element.workSubTypeId}}</td>
+    </ng-container>
+
+    <!-- Work Sub Type -->
+    <ng-container matColumnDef="workSubType">
+      <th mat-header-cell *matHeaderCellDef class="text-left py-2 px-3 font-semibold">Work Sub Type</th>
+      <td mat-cell *matCellDef="let element" class="py-2 px-3">
+        <span class="font-medium">{{element.workSubType}}</span>
+      </td>
+    </ng-container>
+
+    <!-- Work Type (Parent) -->
+    <ng-container matColumnDef="workType">
+      <th mat-header-cell *matHeaderCellDef class="text-left py-2 px-3 font-semibold">Work Type</th>
+      <td mat-cell *matCellDef="let element" class="py-2 px-3">
+        <div *ngIf="element.workType">
+          <span class="text-blue-700 font-medium">{{element.workType.workType}}</span>
+          <span class="text-gray-500 text-xs block">Code: {{element.workType.workTypeCode}}</span>
+        </div>
+        <span *ngIf="!element.workType" class="text-gray-400">N/A</span>
+      </td>
+    </ng-container>
+
+    <!-- Edit -->
+    <ng-container matColumnDef="edit">
+      <th mat-header-cell *matHeaderCellDef class="text-left py-2 px-3 font-semibold">Edit</th>
+      <td mat-cell *matCellDef="let element" class="py-2 px-3">
+        <button
+          (click)="openEditModal(element)"
+          class="p-2 rounded hover:bg-blue-600 hover:text-white transition"
+          title="Edit">
+          <mat-icon>edit</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <!-- Delete -->
+    <ng-container matColumnDef="delete">
+      <th mat-header-cell *matHeaderCellDef class="text-left py-2 px-3 font-semibold">Delete</th>
+      <td mat-cell *matCellDef="let element" class="py-2 px-3">
+        <button
+          (click)="openDeleteModal(element)"
+          class="p-2 rounded hover:bg-red-600 hover:text-white transition"
+          title="Delete">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-gray-50"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="hover:bg-gray-50 transition-colors"></tr>
+
+    <!-- No Data Row -->
+    <tr class="mat-row" *matNoDataRow>
+      <td class="mat-cell text-center py-8 text-gray-500" [attr.colspan]="displayedColumns.length">
+        <mat-icon class="text-5xl text-gray-300">inbox</mat-icon>
+        <p class="mt-2">No work sub types found</p>
+      </td>
+    </tr>
+  </table>
+
+  <mat-paginator [pageSizeOptions]="[5, 10, 20, 50]" showFirstLastButtons class="mt-4">
+  </mat-paginator>
+</div>
+
+<!-- ===================== ADD FORM (below table) ===================== -->
+<div class="border rounded m-2 p-4 bg-white shadow-sm">
+  <h3 class="text-lg font-semibold mb-4 text-gray-800">Add New Work Sub Type</h3>
+
+  <form [formGroup]="insertForm" (ngSubmit)="saveInsert()" class="space-y-4">
+
+    <!-- Work Type Dropdown -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Work Type *</label>
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Select Work Type</mat-label>
+        <mat-select formControlName="workTypeId">
+          <mat-option *ngFor="let wt of workTypes" [value]="wt.id">
+            {{ wt.workType }} ({{ wt.workTypeCode }})
+          </mat-option>
+        </mat-select>
+        <mat-icon matPrefix>category</mat-icon>
+      </mat-form-field>
+      <div *ngIf="insertForm.get('workTypeId')?.touched && insertForm.get('workTypeId')?.invalid"
+           class="text-red-600 text-sm mt-1">
+        Work Type is required
+      </div>
+    </div>
+
+    <!-- Work Sub Type Input -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Work Sub Type *</label>
+      <input
+        type="text"
+        formControlName="workSubType"
+        class="w-full mt-1 p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        placeholder="Enter work sub type name"/>
+      <div *ngIf="insertForm.get('workSubType')?.touched && insertForm.get('workSubType')?.invalid"
+           class="text-red-600 text-sm mt-1">
+        <span *ngIf="insertForm.get('workSubType')?.errors?.['required']">Work Sub Type is required</span>
+        <span *ngIf="insertForm.get('workSubType')?.errors?.['minlength']">Minimum 2 characters required</span>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex justify-end gap-3 mt-4">
+      <button
+        type="button"
+        (click)="cancelInsert()"
+        class="px-4 py-2 rounded border border-gray-300 hover:bg-gray-50 transition">
+        Cancel
+      </button>
+      <button
+        type="submit"
+        [disabled]="insertForm.invalid"
+        class="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed">
+        Insert
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- ===================== EDIT MODAL ===================== -->
+<div
+  *ngIf="editModalOpen"
+  class="fixed inset-0 z-50 flex items-center justify-center"
+  aria-modal="true"
+  role="dialog"
+>
+  <!-- backdrop -->
+  <div class="absolute inset-0 bg-black/50" (click)="closeEditModal()"></div>
+
+  <!-- modal content -->
+  <div class="relative bg-white rounded-lg shadow-lg w-full max-w-md mx-4 p-6 z-10">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold">Edit Work Sub Type</h3>
+      <button (click)="closeEditModal()" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+    </div>
+
+    <form [formGroup]="editForm" (ngSubmit)="saveEdit()" class="space-y-4">
+      <!-- ID Field (Read-only) -->
+      <div>
+        <label class="block text-sm text-gray-600">ID</label>
+        <input
+          type="text"
+          formControlName="workSubTypeId"
+          class="w-full mt-1 p-2 border rounded bg-gray-100"
+          readonly />
+      </div>
+
+      <!-- Work Type Dropdown -->
+      <div>
+        <label class="block text-sm text-gray-600 mb-1">Work Type *</label>
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Select Work Type</mat-label>
+          <mat-select formControlName="workTypeId">
+            <mat-option *ngFor="let wt of workTypes" [value]="wt.id">
+              {{ wt.workType }} ({{ wt.workTypeCode }})
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>category</mat-icon>
+        </mat-form-field>
+        <div *ngIf="editForm.get('workTypeId')?.touched && editForm.get('workTypeId')?.invalid"
+             class="text-red-600 text-sm mt-1">
+          Work Type is required
+        </div>
+      </div>
+
+      <!-- Work Sub Type Input -->
+      <div>
+        <label class="block text-sm text-gray-600">Work Sub Type *</label>
+        <input
+          type="text"
+          formControlName="workSubType"
+          class="w-full mt-1 p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+        <div *ngIf="editForm.get('workSubType')?.touched && editForm.get('workSubType')?.invalid"
+             class="text-red-600 text-sm mt-1">
+          <span *ngIf="editForm.get('workSubType')?.errors?.['required']">Work Sub Type is required</span>
+          <span *ngIf="editForm.get('workSubType')?.errors?.['minlength']">Minimum 2 characters required</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex justify-end gap-3 mt-4">
+        <button
+          type="button"
+          (click)="closeEditModal()"
+          class="px-4 py-2 rounded border border-gray-300 hover:bg-gray-50 transition">
+          Cancel
+        </button>
+        <button
+          type="submit"
+          [disabled]="editForm.invalid"
+          class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed">
+          Save
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===================== DELETE MODAL ===================== -->
+<div
+  *ngIf="deleteModalOpen"
+  class="fixed inset-0 z-50 flex items-center justify-center"
+  aria-modal="true"
+  role="dialog"
+>
+  <div class="absolute inset-0 bg-black/50" (click)="closeDeleteModal()"></div>
+
+  <div class="relative bg-white rounded-lg shadow-lg w-full max-w-sm mx-4 p-6 z-10">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold text-red-600">Confirm Delete</h3>
+      <button (click)="closeDeleteModal()" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+    </div>
+
+    <div class="mb-6">
+      <p class="text-sm text-gray-700 mb-2">Are you sure you want to delete this work sub type?</p>
+      <div *ngIf="selectedRow" class="bg-gray-50 p-3 rounded mt-3">
+        <p class="font-semibold text-gray-900">"{{ selectedRow.workSubType }}"</p>
+        <p class="text-xs text-gray-500 mt-1" *ngIf="selectedRow.workType">
+          Parent: {{ selectedRow.workType.workType }}
+        </p>
+      </div>
+      <p class="text-xs text-red-600 mt-2">This action cannot be undone.</p>
+    </div>
+
+    <div class="flex justify-end gap-3">
+      <button
+        type="button"
+        (click)="closeDeleteModal()"
+        class="px-4 py-2 rounded border border-gray-300 hover:bg-gray-50 transition">
+        Cancel
+      </button>
+      <button
+        type="button"
+        (click)="confirmDelete()"
+        class="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 transition">
+        Delete
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,11 +1,11 @@
-<!-- header + breadcrumbs left as you had -->
+<!-- header + breadcrumbs -->
 <app-header></app-header>
 <app-logged-in-user></app-logged-in-user>
 
 <div class="flex gap-2 p-3 bg-red-200">
-  <a routerLink="">Home</a><span class="ml-2 mr-2">/</span>
-  <a routerLink="/works">Works</a><span class="ml-2 mr-2">/</span>
-  <a routerLink="worktype">Work Type</a>
+  <a class="hover:underline transition-all" routerLink="">Home</a><span class="ml-2 mr-2">/</span>
+  <a class="hover:underline transition-all" routerLink="/works">Works</a><span class="ml-2 mr-2">/</span>
+  <a class="hover:underline transition-all" routerLink="worktype">Work Type</a>
 </div>
 
 <!-- table -->
@@ -65,6 +65,39 @@
 
   <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons class="mt-4">
   </mat-paginator>
+</div>
+
+<!-- ===================== ADD FORM (below table) ===================== -->
+<div class="border rounded m-2 p-4 bg-white">
+  <h3 class="text-lg font-semibold mb-4">Add New Work Type</h3>
+
+  <form [formGroup]="insertForm" (ngSubmit)="saveInsert()" class="space-y-4">
+    <div>
+      <label class="block text-sm text-gray-600">Work Type</label>
+      <input type="text" formControlName="workType" class="w-full mt-1 p-2 border rounded" />
+      <div *ngIf="insertForm.get('workType')?.touched && insertForm.get('workType')?.invalid" class="text-red-600 text-sm mt-1">
+        Work Type is required
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-sm text-gray-600">Work Type Code</label>
+      <input type="text" formControlName="workTypeCode" class="w-full mt-1 p-2 border rounded" />
+      <div *ngIf="insertForm.get('workTypeCode')?.touched && insertForm.get('workTypeCode')?.invalid" class="text-red-600 text-sm mt-1">
+        Work Type Code is required
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <input type="checkbox" formControlName="isImportant" id="isImportantAdd" class="h-4 w-4" />
+      <label for="isImportantAdd" class="text-sm text-gray-700">Is Important</label>
+    </div>
+
+    <div class="flex justify-end gap-3 mt-2">
+      <button type="button" (click)="cancelInsert()" class="px-4 py-2 rounded border">Cancel</button>
+      <button type="submit" class="px-4 py-2 rounded bg-green-600 text-white">Insert</button>
+    </div>
+  </form>
 </div>
 
 <!-- ===================== EDIT MODAL ===================== -->

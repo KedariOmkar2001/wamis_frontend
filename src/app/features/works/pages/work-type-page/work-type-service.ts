@@ -20,6 +20,15 @@ export class WorkTypeService {
     return this.workTypes.map(w => ({ ...w }));
   }
 
+  getNextPosition(): number {
+    if (this.workTypes.length === 0) return 1;
+    return Math.max(...this.workTypes.map(w => w.position)) + 1;
+  }
+
+  addWorkType(newEntry: TableData) {
+    this.workTypes.push(newEntry);
+  }
+
   updateWorkType(updated: TableData) {
     const idx = this.workTypes.findIndex(w => w.position === updated.position);
     if (idx !== -1) this.workTypes[idx] = { ...updated };

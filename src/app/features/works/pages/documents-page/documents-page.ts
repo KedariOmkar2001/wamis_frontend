@@ -1,24 +1,25 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
-import { DocumentFolder, TestService } from './test-service';
+import { DocumentFolder, DocumentService } from './documents-service';
+import {RouterLink} from '@angular/router';
 
 @Component({
   selector: 'app-test-page',
   standalone: true,
-  imports: [CommonModule, TitleCasePipe],
-  templateUrl: './test-page.html',
-  styleUrls: ['./test-page.css']
+  imports: [CommonModule, TitleCasePipe, RouterLink],
+  templateUrl: './documents-page.html',
+  styleUrls: ['./documents-page.css']
 })
-export class TestPage implements OnInit {
+export class DocumentsPage implements OnInit {
   documentFolders: DocumentFolder[] = [];
   expandedFolder: string | null = null;
 
-  constructor(private documentsService: TestService) {}
+  constructor(private documentsService: DocumentService) {}
 
   ngOnInit(): void {
     this.documentsService.getDocuments().subscribe({
       next: (data) => {
-        console.log('Documents received:', data[0]);
+        console.log('Documents received:', data);
         this.documentFolders = data;
       },
       error: (err) => console.error('Error fetching documents:', err)

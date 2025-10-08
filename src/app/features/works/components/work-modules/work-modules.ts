@@ -30,8 +30,8 @@ export class WorkModules {
       title: "Work",
       link: "/work",
       children: [
-        { title: "Work Type", link: "/work-type" },
-        { title: "Work Sub Type", link: "/work-sub-sub-type" }
+        { title: "Work Type", link: "/worktype" },
+        { title: "Work Sub Type", link: "/worksubtype" }
       ]
     },
     {
